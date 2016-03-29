@@ -1,0 +1,134 @@
+#!/bin/bash
+
+mkdir -p $HOME/ConsolePickers
+cd $HOME/ConsolePickers
+PS3='Which system would you like to play? '
+options=("Nintendo" "Super Nintendo" "Genesis" "See Picked Games" "Quit")
+select opt in "${options[@]}"
+do
+    case $opt in
+        "Nintendo")
+		if [ ! -s $HOME/ConsolePickers/cnes ] 
+			then
+				echo "Getting list of NES games."
+				wget --no-check-certificate -q -O - 'https://docs.google.com/spreadsheets/d/1Nc_uGfVZh5iQTci38IaxEAFemOUdfOrv-3nFa_WoreY/pub?output=tsv' | cut -f1 > cnes
+				sleep 2
+			else
+				echo "Games list already present."
+		fi
+		if [ ! -s $HOME/ConsolePickers/vnes ]
+			then
+				cp cnes vnes
+			else
+				echo "found previous data."	
+		fi
+		totalgames=$(wc -l < cnes)
+		shuf -n 1 vnes > nespick
+		cat nespick >> nespicked
+		clear
+		echo "The next game will be:"
+		cat nespick | figlet
+		awk 'NR==FNR{a[$0];next} !($0 in a)' nespick vnes > vnes2
+		cp vnes2 vnes
+		gamesleft=$(wc -l < vnes)
+		echo "There are" $gamesleft "games left out of" $totalgames"."
+		percentleft=$(echo 'scale=4;'$gamesleft'*100/'$totalgames | bc)
+		percentdone=$(echo '100-'$percentleft | bc)
+		echo "Once this game is conquered, you will be" $percentdone"% finished."
+		sleep 5
+		break
+            ;;
+        "Super Nintendo")
+		if [ ! -s $HOME/ConsolePickers/csnes ] 
+			then
+				echo "Getting list of SNES games."
+				wget --no-check-certificate -q -O - 'https://docs.google.com/spreadsheets/d/1TvLBzpLIww4TkgWn6FCzR0CSwpEu5WHYUmDb0p2b1kk/pub?output=tsv' | cut -f1 > csnes
+				sleep 2
+			else
+				echo "Games list already present."
+		fi
+		if [ ! -s $HOME/ConsolePickers/vsnes ]
+			then
+				cp csnes vsnes
+			else
+				echo "found previous data."
+		fi
+		totalgames=$(wc -l < csnes)
+		shuf -n 1 vsnes > snespick
+		cat snespick >> snespicked
+		clear
+		echo "The next game will be:"
+		cat snespick | figlet
+		awk 'NR==FNR{a[$0];next} !($0 in a)' snespick vsnes > vsnes2
+		cp vsnes2 vsnes
+		gamesleft=$(wc -l < vsnes)
+		echo "There are" $gamesleft "games left out of" $totalgames"."
+		percentleft=$(echo 'scale=4;'$gamesleft'*100/'$totalgames | bc)
+		percentdone=$(echo '100-'$percentleft | bc)
+		echo "Once this game is conquered, you will be" $percentdone"% finished."
+		sleep 5
+		break
+            ;;
+        "Genesis")
+		if [ ! -s $HOME/ConsolePickers/cgen ] 
+			then
+				echo "Getting list of Genesis games."
+				wget --no-check-certificate -q -O - 'https://docs.google.com/spreadsheets/d/1f-k9GPWhgXPTi3hy95E4x5Sl-7HtezWY4lPrr8YTUXc/pub?output=tsv' | cut -f1 > cgen
+				sleep 2
+			else
+				echo "Games list already present."
+		fi
+		if [ ! -s $HOME/ConsolePickers/vgen ]
+			then
+				cp cgen vgen
+			else
+				echo "found previous data."
+		fi
+		totalgames=$(wc -l < cgen)
+		shuf -n 1 vgen > genpick
+		cat genpick >> genpicked
+		clear
+		echo "The next game will be:"
+		cat genpick | figlet
+		awk 'NR==FNR{a[$0];next} !($0 in a)' genpick vgen > vgen2
+		cp vgen2 vgen
+		gamesleft=$(wc -l < vgen)
+		echo "There are" $gamesleft "games left out of" $totalgames"."
+		percentleft=$(echo 'scale=4;'$gamesleft'*100/'$totalgames | bc)
+		percentdone=$(echo '100-'$percentleft | bc)
+		echo "Once this game is conquered, you will be" $percentdone"% finished."
+		sleep 5
+		break
+            ;;
+        "See Picked Games")
+		PS3='Select the system to view games already chosen: '
+		options=("Nintendo" "Super Nintendo" "Genesis" "Quit")
+		select opt in "${options[@]}"
+		do
+    		case $opt in
+        		"Nintendo")
+		cat nespicked
+		break
+            		;;
+        		"Super Nintendo")
+		cat snespicked
+		break
+            		;;
+        		"Genesis")
+		cat genpicked
+		break
+            		;;
+        		"Quit")
+            		break
+            		;;
+        		*) echo invalid option;;
+    		esac
+		done
+		break
+	    ;;
+	"Quit")
+	    break
+            ;;
+        *) echo invalid option;;
+    esac
+done
